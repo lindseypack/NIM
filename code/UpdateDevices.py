@@ -21,14 +21,15 @@ def updateAP():
 
     apInv.updateAccessPoints(path, ap_oids, ap_controllers)
 
-def updateSwitch():
+def updateSwitch(switch_IPs = []):
     from switch import switchInv
     print "Updating switches..."
 
     with open("config") as f:
         config = f.read()
         switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(",")
-        switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
+        if len(switch_IPs) == 0:
+            switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
 
     switchInv.updateSwitches(switch_login, switch_IPs)
 

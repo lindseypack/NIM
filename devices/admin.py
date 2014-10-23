@@ -4,11 +4,10 @@ import sys
 import os
 sys.path.append(os.path.abspath("/local_centre/NIM/code"))
 
-try:
-    from switch import switchInv
-    from ups import upsInv
-except:
-    pass
+# try:
+import UpdateDevices
+# except:
+#     pass
 
 admin.site.disable_action('delete_selected')
 
@@ -49,7 +48,7 @@ class SwitchAdmin(admin.ModelAdmin):
         obj.user = request.user
         obj.save()
         try:
-            switchInv.updateSwitches([obj.ip])
+            UpdateDevices.updateSwitch([obj.ip])
         except:
             pass
 
@@ -72,7 +71,7 @@ class UPSAdmin(admin.ModelAdmin):
         obj.user = request.user
         obj.save()
         try:
-            upsInv.updateUPS()
+            UpdateDevices.updateUPS()
         except:
             pass
 
