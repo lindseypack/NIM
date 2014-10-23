@@ -16,6 +16,7 @@ def updateAP():
         ap_serial = re.findall(r'AP_Serial_OID = (.+?)\n', config)[0]
         ap_model = re.findall(r'AP_Model_OID = (.+?)\n', config)[0]
         ap_status = re.findall(r'AP_Status_OID = (.+?)\n', config)[0]
+        ap_oids = [ap_mac, ap_name, ap_ip, ap_serial, ap_model, ap_status]
         ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
 
     apInv.updateAccessPoints(path, ap_oids, ap_controllers)
@@ -76,10 +77,10 @@ if __name__ == "__main__":
         django.setup()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--accesspoint", help="Update UPSes.", action="store_true")
-    parser.add_argument("-s", "--switch", help="Update UPSes.", action="store_true")
+    parser.add_argument("-a", "--accesspoint", help="Update access points.", action="store_true")
+    parser.add_argument("-s", "--switch", help="Update switches.", action="store_true")
     parser.add_argument("-u", "--ups", help="Update UPSes.", action="store_true")
-    parser.add_argument("-p", "--phone", help="Update UPSes.", action="store_true")
+    parser.add_argument("-p", "--phone", help="Update phones.", action="store_true")
     args = parser.parse_args()
     if args.accesspoint:
         updateAP()
