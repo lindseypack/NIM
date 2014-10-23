@@ -91,14 +91,13 @@ def updateStatus(AP, controller_IPs, status_oid):
         ap.save()
 
 ## Add or update all access points using Django.
-def updateAccessPoints(path, AP_OIDs):
+def updateAccessPoints(path, AP_OIDs, controller_IPs):
     mac_oid = AP_OIDs[0]
     name_oid = AP_OIDs[1]
     IP_oid = AP_OIDs[2]
     serialno_oid = AP_OIDs[3]
     model_oid = AP_OIDs[4]
     status_oid = AP_OIDs[5]
-    controller_IPs = AP_OIDs[6]
 
     AccessPoints = snmpwalk(mac_oid, name_oid, IP_oid, serialno_oid, model_oid, controller_IPs)
     # [[name, IPs, mac, serialno, model], ...]
