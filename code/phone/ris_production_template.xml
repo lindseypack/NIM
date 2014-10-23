@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <soapenv:Body>
+
+    <ns1:SelectCmDevice soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+xmlns:ns1="http://schemas.cisco.com/ast/soap/">
+
+      <StateInfo xsi:type="xsd:string"/>
+
+      <CmSelectionCriteria href="#id0"/>
+
+    </ns1:SelectCmDevice>
+
+    <multiRef id="id0" soapenc:root="0" 
+soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+xsi:type="ns2:CmSelectionCriteria" 
+xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+xmlns:ns2="http://schemas.cisco.com/ast/soap/">
+
+      <MaxReturnedDevices xsi:type="xsd:unsignedInt">1000</MaxReturnedDevices>
+
+      <Class xsi:type="xsd:string">Any</Class>
+
+      <Model xsi:type="xsd:unsignedInt">255</Model>
+
+      <Status xsi:type="xsd:string">Any</Status>
+
+      <NodeName xsi:type="xsd:string" xsi:nil="true"/>
+
+      <SelectBy xsi:type="xsd:string">Name</SelectBy>
+
+      <SelectItems soapenc:arrayType="ns2:SelectItem[1]" xsi:type="soapenc:Array">
+
+        <item href="#id1"/>
+
+      </SelectItems>
+
+    </multiRef>
+
+    <multiRef id="id1" soapenc:root="0" 
+soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+xsi:type="ns3:SelectItem" xmlns:ns3="http://schemas.cisco.com/ast/soap/" 
+xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+
+<Item xsi:type="xsd:string">
