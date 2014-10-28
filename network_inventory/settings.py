@@ -10,21 +10,33 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import re
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
+def _getSecretSettings():
+
+    with open(os.path.join(BASE_DIR, "config")) as f:
+        _config = f.read()
+        _user = re.findall(r'DB_User = (.+?)\n', _config)[0].strip()
+        _pw = re.findall(r'DB_Password = (.+?)\n', _config)[0].strip()
+        _host = re.findall(r'DB_Host = (.+?)\n', _config)[0].strip()
+        _secretKey = re.findall(r'DJ_SecretKey = (.+?)\n', _config)[0].strip()
+        return _secretKey, (_user, _pw, _host)
+
+_secretKey, _DBInfo  = _getSecretSettings()
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_4e8ibx-_52k%c_hjpcry=q6k+l(xybax4!8c=_#x*lgef*-!c'
+SECRET_KEY = _secretKey
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '192.102.218.61']
 
 
 # Application definition
@@ -54,7 +66,6 @@ ROOT_URLCONF = 'network_inventory.urls'
 
 WSGI_APPLICATION = 'network_inventory.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
@@ -62,9 +73,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'network_inventory',
-        'USER': 'root',
-        'PASSWORD': 'CNTR15',
-        'HOST': 'localhost',
+        'USER': _DBInfo[0],
+        'PASSWORD': _DBInfo[1],
+        'HOST': _DBInfo[2],
     }
 }
 

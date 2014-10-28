@@ -1,4 +1,4 @@
-
+#!usr/bin/env python
 """ UpdateDevices.py
 
 This program controls several other Python scripts that each update the inventory
@@ -10,8 +10,8 @@ so on.
 
 Usage: UpdateDevices.py [-h] [-a] [-s] [-u] [-p]
 
-optional arguments:
-  -h, --help         show this help message and exit
+Optional arguments:
+  -h, --help         show a help message and exit
   -a, --accesspoint  update access points
   -s, --switch       update switches
   -u, --ups          update UPSes
@@ -26,14 +26,16 @@ import os
 import re
 import argparse
 
+path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+configPath = os.path.join(path, "config")
+
 def updateAP():
     try:
         from ap import apInv
         print "Updating access points..."
 
-        with open("config") as f:
+        with open(configPath) as f:
             config = f.read()
-            path = re.findall(r'path = (.+?)\n', config)[0]
             ap_mac = re.findall(r'AP_MAC_OID = (.+?)\n', config)[0]
             ap_name = re.findall(r'AP_Name_OID = (.+?)\n', config)[0]
             ap_ip = re.findall(r'AP_IP_OID = (.+?)\n', config)[0]
@@ -53,7 +55,7 @@ def updateSwitch(switch_IPs = []):
         from switch import switchInv
         print "Updating switches..."
 
-        with open("config") as f:
+        with open(configPath) as f:
             config = f.read()
             switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(",")
             if len(switch_IPs) == 0:
@@ -69,7 +71,7 @@ def updateUPS():
         from ups import upsInv
         print "Updating UPSes..."
 
-        with open("config") as f:
+        with open(configPath) as f:
             config = f.read()
             apc_serial = re.findall(r'APC_Serial_OID = (.+?)\n', config)[0]
             apc_model = re.findall(r'APC_Model_OID = (.+?)\n', config)[0]
@@ -92,9 +94,8 @@ def updatePhone():
         from phone import phoneInv
         print "Updating phones..."
 
-        with open("config") as f:
+        with open(configPath) as f:
             config = f.read()
-            path = re.findall(r'path = (.+?)\n', config)[0]
             phone_login = re.findall(r'Phone_Login = (.+?)\n', config)[0]
 
         phoneInv.updatePhones(path, phone_login)
@@ -104,9 +105,8 @@ def updatePhone():
 
 
 if __name__ == "__main__":
-    with open("config") as f:
+    with open(configPath) as f:
         config = f.read()
-        path = re.findall(r'path = (.+?)\n', config)[0]
 
     import django
     sys.path.append(os.path.abspath(path))
