@@ -8,7 +8,11 @@ import sys
 import os
 from devices.models import Phone
 
-## use an xml file to get name and model of each phone.
+## This file is used to update the phone inventory data. Use
+## the updatePhones function to run the update.
+
+## use PyCURL to retrieve xml data, then parse this to get the name and
+## model of each phone.
 ## return list of phones: [[name,model],...].
 def getNameModel(path, login):
     url = "https://10.90.1.30:8443/axl/"
@@ -63,8 +67,6 @@ def risData(ris, login):
         xml = storage.getvalue()
         storage.close()
 
-        # failed = 0
-
         items = re.findall(r"<item(.+?)</item>", xml)
         itemRE = re.compile(r"<item(.+</TimeStamp>)")
         ipRE = re.compile(r"(\d+\.\d+\.\d+\.\d+)</IpAddress>")
@@ -95,9 +97,7 @@ def risData(ris, login):
                 phones.append([name.upper(), ip, status, description, timeStamp, did])
 
             except:
-                # failed += 1
                 pass
-        # print "failed", failed
     return phones
 
 ## take a list of phones and return a list of phones with distinct names.
@@ -137,11 +137,11 @@ def distinct(phones):
 ## fix that.
 @timeout(1)
 def serialNo(ip):
-    return
     page = urllib.urlopen("http://" + ip).read()
     serialno = re.findall(r"Serial Number.+?>(\w+?)\s?<", page, re.DOTALL)[0]
     return serialno
 
+## Collect useful information about phones.
 def phoneInfo(path, login):
     templateBegin = ""
     with open(path + "/code/phone/ris_production_template.xml", 'r') as f:
@@ -173,23 +173,21 @@ def phoneInfo(path, login):
                 break
     # format of phones is [[name,ip,status,descr,timestamp,did,model],...]
     for phone in phones:
-        # try:
-        #     phone.append(serialNo(phone[1]))
-        # except:
-        phone.append(None)
+        try:
+            phone.append(serialNo(phone[1]))
+        except:
+            phone.append(None)
 
     # format of phones is [[name,ip,status,descr,timestamp,did,model,serialno],...]
 
     return phones
 
 
+## Get information about the phones, then update the phone database with Django.
 def updatePhones(path, login):
     phones = phoneInfo(path, login)
 
     oldPhones = Phone.objects.all()
-
-    updateCount = len(oldPhones)
-    addCount = len(phones) - updateCount
 
     ## set status = inactive for phones in the db that can't be reached now
     foundNames = [phone[0] for phone in phones]

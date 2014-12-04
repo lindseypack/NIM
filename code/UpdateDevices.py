@@ -12,6 +12,7 @@ Usage: UpdateDevices.py [-h] [-a] [-s] [-u] [-p]
 
 Optional arguments:
   -h, --help         show a help message and exit
+  -d, --debug        enable logging on update failure
   -a, --accesspoint  update access points
   -s, --switch       update switches
   -u, --ups          update UPSes
@@ -25,11 +26,19 @@ import sys
 import os
 import re
 import argparse
+import logging
+import datetime
 
 path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 configPath = os.path.join(path, "config")
+logPath = os.path.join(path, "log")
+logging.basicConfig(filename=logPath)
+debug = False;
 
 def updateAP():
+    """ This function reads necessary information from a config file, then
+    calls the updateAccessPoints function in apInv.py.
+    """
     try:
         from ap import apInv
         print "Updating access points..."
@@ -48,9 +57,19 @@ def updateAP():
         apInv.updateAccessPoints(path, ap_oids, ap_controllers)
 
     except:
-        print "Could not update access points."
+        if debug:
+            msg = "========================================================\n"\
+                + str(datetime.datetime.today()) + "\n"\
+                + "Could not update access points:\n\n"
+            logging.exception(msg)
+            print "Could not update access points. See", logPath, "for details."
+        else:
+            print "Could not update access points."
 
 def updateSwitch(switch_IPs = []):
+    """ This function reads necessary information from a config file, then
+    calls the updateSwitches function in switchInv.py.
+    """
     try:
         from switch import switchInv
         print "Updating switches..."
@@ -64,9 +83,19 @@ def updateSwitch(switch_IPs = []):
         switchInv.updateSwitches(switch_login, switch_IPs)
 
     except:
-        print "Could not update switches."
+        if debug:
+            msg = "========================================================\n"\
+                + str(datetime.datetime.today()) + "\n"\
+                + "Could not update switches:\n\n"
+            logging.exception(msg)
+            print "Could not update switches. See", logPath, "for details."
+        else:
+            print "Could not update switches."
 
 def updateUPS():
+    """ This function reads necessary information from a config file, then
+    calls the updateUPS function in upsInv.py.
+    """
     try:
         from ups import upsInv
         print "Updating UPSes..."
@@ -87,9 +116,19 @@ def updateUPS():
         upsInv.updateUPS(apc_oids, liebert_oids)
 
     except:
-        print "Could not update UPSes."
+        if debug:
+            msg = "========================================================\n"\
+                + str(datetime.datetime.today()) + "\n"\
+                + "Could not update UPSes:\n\n"
+            logging.exception(msg)
+            print "Could not update UPSes. See", logPath, "for details."
+        else:
+            print "Could not update UPSes."
 
 def updatePhone():
+    """ This function reads necessary information from a config file, then
+    calls the updatePhones function in phoneInv.py.
+    """
     try:
         from phone import phoneInv
         print "Updating phones..."
@@ -101,7 +140,14 @@ def updatePhone():
         phoneInv.updatePhones(path, phone_login)
 
     except:
-        print "Could not update phones."
+        if debug:
+            msg = "========================================================\n"\
+                + str(datetime.datetime.today()) + "\n"\
+                + "Could not update phones:\n\n"
+            logging.exception(msg)
+            print "Could not update phones. See", logPath, "for details."
+        else:
+            print "Could not update phones."
 
 
 if __name__ == "__main__":
@@ -114,11 +160,14 @@ if __name__ == "__main__":
     django.setup()
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", help="enable logging on update failure", action="store_true")
     parser.add_argument("-a", "--accesspoint", help="update access points", action="store_true")
     parser.add_argument("-s", "--switch", help="update switches", action="store_true")
     parser.add_argument("-u", "--ups", help="update UPSes", action="store_true")
     parser.add_argument("-p", "--phone", help="update phones", action="store_true")
     args = parser.parse_args()
+    if args.debug:
+        debug = True
     if args.accesspoint:
         updateAP()
     if args.switch:

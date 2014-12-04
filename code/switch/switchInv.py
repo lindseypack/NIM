@@ -58,10 +58,6 @@ def showVersion(IPs, login):
             pass
     return showver
 
-# IPs = ['10.12.1.4', '10.20.1.4', '10.19.1.4', '10.17.1.4']
-# switchlogin = ("ccadmin", "6lwL2I4ODW")
-# showVersion(IPs, switchlogin)
-
 ## extract useful info from the showver data using regular expressions.
 ## return a list of switches: [(serialno, ip, name, mac, model, swVer, uptime, stack, purchaseyr), ...]
 ## and a list of ip addresses that failed the REs.
