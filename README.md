@@ -14,6 +14,7 @@ Installation
 - First, make sure all of NIM's requirements are installed. NIM requires Python 2.7, MySQL, Django, Django extensions, PySNMP, Exscript, and PyCURL.
 - Clone the NIM repository.
 - In MySQL, make a database called "network_inventory". 
+- Using NIM/config_template, create NIM/config with the settings needed for your setup.
 - Run NIM/code/UpdateDevices.py
 - Run the command "manage.py runserver" to put Django's administrator web interface on localhost, or use "manage.py runserver ip:port".
 - Navigate to the administrator interface in a web browser.
