@@ -13,31 +13,30 @@ import os
 import re
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 def _getSecretSettings():
-
     with open(os.path.join(BASE_DIR, "config")) as f:
         _config = f.read()
         _user = re.findall(r'DB_User = (.+?)\n', _config)[0].strip()
         _pw = re.findall(r'DB_Password = (.+?)\n', _config)[0].strip()
         _host = re.findall(r'DB_Host = (.+?)\n', _config)[0].strip()
         _secretKey = re.findall(r'DJ_SecretKey = (.+?)\n', _config)[0].strip()
-        return _secretKey, (_user, _pw, _host)
+        _allowedHosts = re.findall(r'DJ_Host = (.+?)\n', _config)
+        return _secretKey, _allowedHosts, (_user, _pw, _host)
 
-_secretKey, _DBInfo  = _getSecretSettings()
+_secretKey, _allowedHosts, _DBInfo  = _getSecretSettings()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = _secretKey
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '192.102.218.61']
-
+ALLOWED_HOSTS = []
+for host in _allowedHosts:
+    ALLOWED_HOSTS.append(host.strip())
 
 # Application definition
 
@@ -97,3 +96,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+
+
