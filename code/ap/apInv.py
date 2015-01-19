@@ -7,6 +7,9 @@ import os
 import sys
 from devices.models import AP
 
+## This file is used to update the access point inventory data. Use the
+## updateAccessPoints function to run the update.
+
 ## Do an snmpwalk using cmdgen from PySNMP to get data about each AP.
 def snmpwalk(mac, name, IPs, serialno, model, controllers):
     APs = dict()

@@ -5,6 +5,9 @@ import re
 import subprocess
 from devices.models import UPS
 
+## This file is used to update the UPS inventory data. Use the updateUPS
+## function to run the update.
+
 ## Do an snmpget using cmdgen from PySNMP to get data about each UPS.
 ## For APCs, return [serialno, model, mac addr, name].
 ## For Lieberts, return [serialno, model, mac addr, manufacture date].
@@ -43,7 +46,7 @@ def snmpget(ip, brand, APC_OIDs, Liebert_OIDs):
     vals[2] = vals[2].lstrip('0x').upper()
     return vals
 
-## Pull ip addresses from file, add them to the database.
+## Pull IP addresses from file, add them to the database.
 def importIPs(nd_ip, brand):
     IPs = [ip.strip() for ip in open(nd_ip)]
     for ip in IPs:
@@ -55,6 +58,7 @@ def importIPs(nd_ip, brand):
                 ups.save()
     return IPs
 
+## Make sure that an IP is still valid by pinging it.
 def checkValidIP(ip):
     proc = subprocess.Popen(["ping " + ip + " -w 1"], stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
