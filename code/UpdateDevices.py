@@ -5,10 +5,10 @@ This program controls several other Python scripts that each update the inventor
 information for a network device. Currently supported devices are access points,
 switches, APC or Liebert UPSes, and phones using VOIP.
 
-Uses a config file for information about device logins, OIDs, IP addresses, and
-so on.
+Uses a configuration file for information about device logins, OIDs, IP addresses,
+and so on.
 
-Usage: UpdateDevices.py [-h] [-a] [-s] [-u] [-p]
+Usage: UpdateDevices.py [-h] [-d] [-a] [-s] [-u] [-p]
 
 Optional arguments:
   -h, --help         show a help message and exit
@@ -19,7 +19,6 @@ Optional arguments:
   -p, --phone        update phones
 
 Running with no arguments will attempt to update all devices.
-
 """
 
 import sys
@@ -76,9 +75,9 @@ def updateSwitch(switch_IPs = []):
 
         with open(configPath) as f:
             config = f.read()
-            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(",")
+            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(", ")
             if len(switch_IPs) == 0:
-                switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
+                switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(", ")
 
         switchInv.updateSwitches(switch_login, switch_IPs)
 
