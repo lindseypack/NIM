@@ -4,10 +4,7 @@ import sys
 import os
 sys.path.append(os.path.abspath("/local_centre/NIM/code"))
 
-# try:
 import UpdateDevices
-# except:
-#     pass
 
 admin.site.disable_action('delete_selected')
 

@@ -44,9 +44,8 @@ def getNameModel(path, login):
         phones.append([name.upper(), model])
     return phones
 
-## use an xml file containing a list of phone names
-## to get the IP addr, name, status, description, timestamp?
-## for each of those phones
+## use an xml file containing a list of phone names to get the IP addr, name,
+## status, description, timestamp, and DID for each of those phones
 def risData(ris, login):
     phones = list()
     while (len(phones) == 0):
