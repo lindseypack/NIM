@@ -124,7 +124,7 @@ def parseShowVer(showver):
 ## updated to reflect this.
 def checkReplaced(switches):
     newSwitches = [(switch[0], switch[1]) for switch in switches]  ## serialno, ip
-    oldSwitchObjs = Switch.objects.filter(autoupdate=1).exclude(ip='0.0.0.0')
+    oldSwitchObjs = Switch.objects.exclude(ip='0.0.0.0')
     oldSwitches = [(switch.serialno.encode('ascii', 'ignore'),
                     switch.ip.encode('ascii', 'ignore')) for switch in oldSwitchObjs]
     replaced =  list()
@@ -138,7 +138,7 @@ def checkReplaced(switches):
 def updateSwitches(switchlogin, IPs = []):
     if (IPs == []):
         ## get IPs from db
-        switchObjs = Switch.objects.filter(autoupdate=1).exclude(ip='0.0.0.0')
+        switchObjs = Switch.objects.exclude(ip='0.0.0.0')
         IPs = [switch.ip for switch in switchObjs]
 
     ## get & parse info about each switch
@@ -156,7 +156,7 @@ def updateSwitches(switchlogin, IPs = []):
 
         for r in replaced:
             try:
-                switch = Switch.objects.get(serialno=r[0], autoupdate=1)
+                switch = Switch.objects.get(serialno=r[0])
                 switch.ip = '0.0.0.0'
                 switch.status = 'inactive'
                 switch.uptime = ''
