@@ -75,9 +75,9 @@ def updateSwitch(switch_IPs = []):
 
         with open(configPath) as f:
             config = f.read()
-            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(", ")
+            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(',')
             if len(switch_IPs) == 0:
-                switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(", ")
+                switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
 
         switchInv.updateSwitches(switch_login, switch_IPs)
 
