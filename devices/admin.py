@@ -16,8 +16,10 @@ toggle_autoupdate.short_description = "Toggle auto-update"
 
 class APAdmin(admin.ModelAdmin):
     readonly_fields = ('name', 'serialno', 'ip', 'mac', 'laststatus')
-    fields = ['name', 'serialno', 'ip', 'mac', 'laststatus','checkstatus', 'autoupdate', 'notes']
-    list_display = ('name', 'serialno', 'ip', 'mac', 'laststatus', 'lastupdate','checkstatus', 'autoupdate')
+    fields = ['name', 'serialno', 'ip', 'mac', 'laststatus','checkstatus',
+        'autoupdate', 'notes']
+    list_display = ('name', 'serialno', 'ip', 'mac', 'laststatus', 'lastupdate',
+        'checkstatus', 'autoupdate')
     search_fields = ['name', 'serialno', 'ip', 'mac']
     actions = ['toggle_autoupdate', 'toggle_checkstatus']
 
@@ -37,25 +39,18 @@ class APAdmin(admin.ModelAdmin):
 class SwitchAdmin(admin.ModelAdmin):
     readonly_fields = ('name', 'serialno', 'model', 'softwarever', 'mac', 'uptime',
         'stack', 'status')
-    # fields = ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac', 'uptime',
-    #     'stack', 'purchaseyr', 'purchaseorder', 'status', 'autoupdate', 'notes', 'uplink1',
-    #     'uplink2', 'uplink3', 'uplink4',]
-
     fieldsets = (
         (None, {
-            'fields': ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac', 'uptime',
-        'stack', 'purchaseyr', 'purchaseorder', 'status', 'autoupdate', 'notes']
+            'fields': ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac',
+            'uptime', 'stack', 'purchaseyr', 'purchaseorder', 'status', 'notes']
         }),
         ('Uplinks', {
             'classes': ('collapse',),
             'fields': ( 'uplink1', 'uplink2', 'uplink3', 'uplink4')
         }),
-
         )
-
-
     list_display = ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac',
-        'uptime', 'stack', 'status', 'autoupdate', 'lastupdate']
+        'uptime', 'stack', 'status', 'lastupdate']
     search_fields = ['name', 'serialno', 'model', 'softwarever', 'ip', 'mac',
         'purchaseyr']
     actions = ['toggle_autoupdate', 'delete_selected']
@@ -70,16 +65,19 @@ class SwitchAdmin(admin.ModelAdmin):
 
 
 class PhoneAdmin(admin.ModelAdmin):
-    fields = ['name', 'ip', 'mac', 'did', 'model', 'serialno', 'status', 'purchaseyr', 'description', 'notes']
-    list_display = ['name', 'ip', 'mac', 'did', 'model', 'serialno', 'status', 'lastupdate']
+    fields = ['name', 'ip', 'mac', 'did', 'model', 'serialno', 'status',
+        'purchaseyr', 'description', 'notes']
+    list_display = ['name', 'ip', 'mac', 'did', 'model', 'serialno', 'status',
+        'lastupdate']
     search_fields = ['name', 'ip', 'mac', 'did', 'model', 'serialno', 'status']
     actions = []
 
 
 class UPSAdmin(admin.ModelAdmin):
     fields = ['name', 'ip', 'mac', 'brand', 'model', 'serialno', 'mfdate',
-              'notes', 'autoupdate']
-    list_display = ['name', 'ip', 'mac', 'brand', 'model', 'serialno', 'autoupdate', 'lastupdate']
+        'notes', 'autoupdate']
+    list_display = ['name', 'ip', 'mac', 'brand', 'model', 'serialno',
+        'autoupdate', 'lastupdate']
     search_fields = ['name', 'ip', 'mac', 'brand', 'model', 'serialno', 'mfdate']
     actions = ['toggle_autoupdate','delete_selected']
 
