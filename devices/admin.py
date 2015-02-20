@@ -35,10 +35,29 @@ class APAdmin(admin.ModelAdmin):
 
 
 class SwitchAdmin(admin.ModelAdmin):
-    readonly_fields = ('name', 'serialno', 'softwarever', 'mac', 'uptime', 'stack', 'status')
-    fields = ['name', 'serialno', 'ip', 'softwarever', 'mac', 'uptime', 'stack', 'purchaseyr', 'status', 'autoupdate', 'notes']
-    list_display = ['name', 'serialno', 'ip', 'softwarever', 'mac', 'uptime', 'stack', 'status', 'autoupdate', 'lastupdate']
-    search_fields = ['name', 'serialno', 'softwarever', 'ip', 'mac', 'purchaseyr']
+    readonly_fields = ('name', 'serialno', 'model', 'softwarever', 'mac', 'uptime',
+        'stack', 'status')
+    # fields = ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac', 'uptime',
+    #     'stack', 'purchaseyr', 'purchaseorder', 'status', 'autoupdate', 'notes', 'uplink1',
+    #     'uplink2', 'uplink3', 'uplink4',]
+
+    fieldsets = (
+        (None, {
+            'fields': ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac', 'uptime',
+        'stack', 'purchaseyr', 'purchaseorder', 'status', 'autoupdate', 'notes']
+        }),
+        ('Uplinks', {
+            'classes': ('collapse',),
+            'fields': ( 'uplink1', 'uplink2', 'uplink3', 'uplink4')
+        }),
+
+        )
+
+
+    list_display = ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac',
+        'uptime', 'stack', 'status', 'autoupdate', 'lastupdate']
+    search_fields = ['name', 'serialno', 'model', 'softwarever', 'ip', 'mac',
+        'purchaseyr']
     actions = ['toggle_autoupdate', 'delete_selected']
 
     def save_model(self, request, obj, form, change):
