@@ -16,7 +16,6 @@ class Switch(models.Model):
     uplink3 = models.TextField("Uplink 3", default='', blank=True)
     uplink4 = models.TextField("Uplink 4", default='', blank=True)
     notes = models.TextField("Notes", default='', blank=True)
-    autoupdate = models.BooleanField("Autoupdate?", default=True)
     status = models.CharField("Status", max_length=128, default='active', blank=True)
     lastupdate = models.DateTimeField("Last Update", auto_now=True)
 
