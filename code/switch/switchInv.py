@@ -12,7 +12,7 @@ from devices.models import Switch
 ## This file is used to update the switch inventory data. Use the
 ## updateSwitches function to run the update.
 
-## use this to import a bunch of IPs into the db from a file
+## use this to import a bunch of IPs into the database from a file
 def importIPs(IPFile):
     with open(IPFile) as f:
         IPs = [ip.strip() for ip in f]
