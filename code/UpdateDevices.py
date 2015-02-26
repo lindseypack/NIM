@@ -14,6 +14,7 @@ Optional arguments:
   -h, --help         show a help message and exit
   -d, --debug        enable logging on update failure
   -a, --accesspoint  update access points
+  -e, --apstatus     update access point status and send notification email
   -s, --switch       update switches
   -u, --ups          update UPSes
   -p, --phone        update phones
@@ -52,7 +53,6 @@ def updateAP():
             ap_status = re.findall(r'AP_Status_OID = (.+?)\n', config)[0]
             ap_oids = [ap_mac, ap_name, ap_ip, ap_serial, ap_model, ap_status]
             ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
-
         apInv.updateAccessPoints(path, ap_oids, ap_controllers)
 
     except:
@@ -65,6 +65,32 @@ def updateAP():
         else:
             print "Could not update access points."
 
+def updateAPStatus():
+    """ This function reads necessary information from a config file, then
+    calls the updateStatus function in apInv.py.
+    """
+    try:
+        from ap import apInv
+        print "Updating access point status..."
+
+        with open(configPath) as f:
+            config = f.read()
+            ap_status = re.findall(r'AP_Status_OID = (.+?)\n', config)[0]
+            ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
+            ap_emailFrom = re.findall(r'AP_Email_From = (.+?)\n', config)[0]
+            ap_emailTo = re.findall(r'AP_Email_To = (.+?)\n', config)[0]
+        apInv.updateStatus(ap_controllers, ap_status, ap_emailFrom, ap_emailTo)
+
+    except:
+        if debug:
+            msg = "========================================================\n"\
+                + str(datetime.datetime.today()) + "\n"\
+                + "Could not update access points:\n\n"
+            logging.exception(msg)
+            print "Could not update access point status. See", logPath, "for details."
+        else:
+            print "Could not update access point status."
+
 def updateSwitch(switch_IPs = []):
     """ This function reads necessary information from a config file, then
     calls the updateSwitches function in switchInv.py.
@@ -75,10 +101,13 @@ def updateSwitch(switch_IPs = []):
 
         with open(configPath) as f:
             config = f.read()
-            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(',')
+            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(",")
             if len(switch_IPs) == 0:
-                switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
-
+                switch_IPs = []
+                try:
+                    switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
+                except:
+                    pass
         switchInv.updateSwitches(switch_login, switch_IPs)
 
     except:
@@ -111,7 +140,6 @@ def updateUPS():
             lie_mac = re.findall(r'Liebert_MAC_OID = (.+?)\n', config)[0]
             lie_mfdate = re.findall(r'Liebert_MfDate_OID = (.+?)\n', config)[0]
             liebert_oids = [lie_serial, lie_model, lie_mac, lie_mfdate]
-
         upsInv.updateUPS(apc_oids, liebert_oids)
 
     except:
@@ -135,7 +163,6 @@ def updatePhone():
         with open(configPath) as f:
             config = f.read()
             phone_login = re.findall(r'Phone_Login = (.+?)\n', config)[0]
-
         phoneInv.updatePhones(path, phone_login)
 
     except:
@@ -161,14 +188,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", help="enable logging on update failure", action="store_true")
     parser.add_argument("-a", "--accesspoint", help="update access points", action="store_true")
+    parser.add_argument("-e", "--apstatus", help="check AP status and send email alerts", action="store_true")
     parser.add_argument("-s", "--switch", help="update switches", action="store_true")
     parser.add_argument("-u", "--ups", help="update UPSes", action="store_true")
     parser.add_argument("-p", "--phone", help="update phones", action="store_true")
     args = parser.parse_args()
-    if args.debug:
-        debug = True
+    # if args.debug:
+    debug = True
     if args.accesspoint:
         updateAP()
+    if args.apstatus:
+        updateAPStatus()
     if args.switch:
         updateSwitch()
     if args.ups:
@@ -176,7 +206,7 @@ if __name__ == "__main__":
     if args.phone:
         updatePhone()
 
-    if not args.accesspoint and not args.switch and not args.ups and not args.phone:
+    if not args.apstatus and args.accesspoint and not args.switch and not args.ups and not args.phone:
         updateAP()
         updateSwitch()
         updateUPS()
