@@ -11,7 +11,7 @@ Features
 Installation
 ============
 
-- First, make sure all of NIM's requirements are installed. NIM requires Python 2.7, MySQL, Django, Django extensions, PySNMP, Exscript, and PyCURL.
+- First, make sure all of NIM's requirements are installed. NIM requires Python 2.7, MySQL, Django, Django extensions, PySNMP, Exscript, and PyCURL, and MySQLdb.
 - Clone the NIM repository.
 - In MySQL, make a database called "network_inventory". 
 - Using NIM/config_template, create NIM/config with the settings needed for your setup.
