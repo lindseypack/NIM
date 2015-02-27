@@ -5,10 +5,13 @@ import subprocess
 import re
 import os
 import sys
+import smtplib
 from devices.models import AP
 
 ## This file is used to update the access point inventory data. Use the
-## updateAccessPoints function to run the update.
+## updateAccessPoints function to run the update. The function
+## updateStatus will only check if the APs are up or down, and send an
+## email report on APs that are currently down or that have recovered.
 
 ## Do an snmpwalk using cmdgen from PySNMP to get data about each AP.
 def snmpwalk(mac, name, IPs, serialno, model, controllers):
@@ -74,24 +77,6 @@ def runCom(com):
 
     return names
 
-## Get the names of all the access points which are currently up and connected to
-## a controller. Compare to the names in the database to find the APs that are down.
-def updateStatus(AP, controller_IPs, status_oid):
-    AP_command = []
-    for controller in controller_IPs:
-        AP_command.append("snmpwalk -v2c -c spa " + controller + " " + status_oid)
-
-    #Get the names of the APs connected to each controller
-    UpAPs = []
-    for cmd in AP_command:
-        UpAPs.extend(runCom(cmd))
-    StoredAPs = AP.objects.all()
-    for ap in StoredAPs:
-        if ap.name not in UpAPs:
-            ap.laststatus = "down"
-        else:
-            ap.laststatus = "up"
-        ap.save()
 
 ## Add or update all access points using Django.
 def updateAccessPoints(path, AP_OIDs, controller_IPs):
@@ -103,7 +88,7 @@ def updateAccessPoints(path, AP_OIDs, controller_IPs):
     status_oid = AP_OIDs[5]
 
     AccessPoints = snmpwalk(mac_oid, name_oid, IP_oid, serialno_oid, model_oid, controller_IPs)
-    # [[name, IPs, mac, serialno, model], ...]
+    # AccessPoints = [[name, IPs, mac, serialno, model], ...]
 
     for AccessPoint in AccessPoints:
         serial = AccessPoints[AccessPoint][3]
@@ -126,4 +111,54 @@ def updateAccessPoints(path, AP_OIDs, controller_IPs):
 
             update_AccessPoint.save()
 
-    updateStatus(AP, controller_IPs, status_oid)
+    updateStatus(controller_IPs, status_oid)
+
+
+## Get the names of all the access points which are currently up and connected to
+## a controller. Compare to the names in the database to find the APs that are down.
+def updateStatus(controller_IPs, status_oid, emailFrom, emailTo, emailServer):
+    AP_command = []
+    for controller in controller_IPs:
+        AP_command.append("snmpwalk -v2c -c spa " + controller + " " + status_oid)
+
+    # Get the names of the APs connected to each controller.
+    # Compare to APs stored in the database to determine which are down and
+    # which have recovered.
+    upAPs = []
+    for cmd in AP_command:
+        upAPs.extend(runCom(cmd))
+    storedAPs = AP.objects.all()
+    downAPs = []
+    recoveredAPs = []
+    for ap in storedAPs:
+        if ap.name not in upAPs:
+            ap.laststatus = "down"
+            if ap.checkstatus == True:
+                downAPs.append(ap)
+        else:
+            if ap.laststatus == "down" and ap.checkstatus == True:
+                recoveredAPs.append(ap)
+            ap.laststatus = "up"
+        ap.save()
+
+    # Send emails about down or recovered access points.
+    if len(downAPs > 0):
+        downMessage = '\nThe following access points are not responding:\n'
+        downSubject = 'APs are not responding'
+        email(downMessage, downSubject, downAPs, emailFrom, emailTo, emailServer)
+    if len(recoveredAPs > 0):
+        recoveredMessage = '\nThe following access points were down but have recovered:\n'
+        recoveredSubject = 'APs have recovered'
+        email(recoveredMessage, recoveredSubject, recoveredAPs, emailFrom, emailTo, emailServer)
+
+## Send an email report on access point status.
+def email(messageBody, subject, APs, emailFrom, emailTo, emailServer):
+    for ap in APs:
+        messageBody += "\t" + ap.ip + "\t" + ap.name + "\n"
+    toHeaderBuild = []
+    for to in emailTo:
+        toHeaderBuild.append("<" + to + ">")
+    msg = "From: <" + emailFrom + "> \nTo: " + ', '.join(toHeaderBuild) + " \nSubject: " + subject + " \n" + messageBody
+    s = smtplib.SMTP(emailServer)
+    s.sendmail(emailFrom, emailTo, msg)
+    s.quit()
