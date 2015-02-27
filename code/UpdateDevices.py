@@ -79,7 +79,9 @@ def updateAPStatus():
             ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
             ap_emailFrom = re.findall(r'AP_Email_From = (.+?)\n', config)[0]
             ap_emailTo = re.findall(r'AP_Email_To = (.+?)\n', config)[0]
-        apInv.updateStatus(ap_controllers, ap_status, ap_emailFrom, ap_emailTo)
+            ap_emailServer = re.findall(r'AP_Email_Server = (.+?)\n', config)[0]
+            # ap_email = {"from":ap_emailFrom, "to":ap_emailTo, "server:"ap}
+        apInv.updateStatus(ap_controllers, ap_status, ap_emailFrom, ap_emailTo, ap_emailServer)
 
     except:
         if debug:
