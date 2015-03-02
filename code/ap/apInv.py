@@ -116,7 +116,7 @@ def updateAccessPoints(path, AP_OIDs, controller_IPs):
 
 ## Get the names of all the access points which are currently up and connected to
 ## a controller. Compare to the names in the database to find the APs that are down.
-def updateStatus(controller_IPs, status_oid, emailFrom, emailTo, emailServer):
+def updateStatus(controller_IPs, status_oid, email):
     AP_command = []
     for controller in controller_IPs:
         AP_command.append("snmpwalk -v2c -c spa " + controller + " " + status_oid)
@@ -142,23 +142,23 @@ def updateStatus(controller_IPs, status_oid, emailFrom, emailTo, emailServer):
         ap.save()
 
     # Send emails about down or recovered access points.
-    if len(downAPs > 0):
-        downMessage = '\nThe following access points are not responding:\n'
-        downSubject = 'APs are not responding'
-        email(downMessage, downSubject, downAPs, emailFrom, emailTo, emailServer)
-    if len(recoveredAPs > 0):
-        recoveredMessage = '\nThe following access points were down but have recovered:\n'
-        recoveredSubject = 'APs have recovered'
-        email(recoveredMessage, recoveredSubject, recoveredAPs, emailFrom, emailTo, emailServer)
+    if len(downAPs) > 0:
+        message = '\nThe following access points are not responding:\n'
+        subject = 'APs are not responding'
+        sendEmail(message, subject, downAPs, email)
+    if len(recoveredAPs) > 0:
+        message = '\nThe following access points were down but have recovered:\n'
+        subject = 'APs have recovered'
+        sendEmail(message, subject, recoveredAPs, email)
 
 ## Send an email report on access point status.
-def email(messageBody, subject, APs, emailFrom, emailTo, emailServer):
+def sendEmail(messageBody, subject, APs, email):
     for ap in APs:
         messageBody += "\t" + ap.ip + "\t" + ap.name + "\n"
     toHeaderBuild = []
-    for to in emailTo:
+    for to in email["to"]:
         toHeaderBuild.append("<" + to + ">")
-    msg = "From: <" + emailFrom + "> \nTo: " + ', '.join(toHeaderBuild) + " \nSubject: " + subject + " \n" + messageBody
-    s = smtplib.SMTP(emailServer)
-    s.sendmail(emailFrom, emailTo, msg)
+    msg = "From: <" + email["from"] + "> \nTo: " + ', '.join(toHeaderBuild) + " \nSubject: " + subject + " \n" + messageBody
+    s = smtplib.SMTP(email["server"])
+    s.sendmail(email["from"], email["to"], msg)
     s.quit()
