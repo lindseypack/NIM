@@ -205,7 +205,7 @@ if __name__ == "__main__":
     if args.phone:
         updatePhone()
 
-    if not args.apstatus and args.accesspoint and not args.switch and not args.ups and not args.phone:
+    if not args.apstatus and not args.accesspoint and not args.switch and not args.ups and not args.phone:
         updateAP()
         updateSwitch()
         updateUPS()
