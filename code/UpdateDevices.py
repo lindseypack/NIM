@@ -78,10 +78,10 @@ def updateAPStatus():
             ap_status = re.findall(r'AP_Status_OID = (.+?)\n', config)[0]
             ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
             ap_emailFrom = re.findall(r'AP_Email_From = (.+?)\n', config)[0]
-            ap_emailTo = re.findall(r'AP_Email_To = (.+?)\n', config)[0]
+            ap_emailTo = re.findall(r'AP_Email_To = (.+?)\n', config)
             ap_emailServer = re.findall(r'AP_Email_Server = (.+?)\n', config)[0]
-            # ap_email = {"from":ap_emailFrom, "to":ap_emailTo, "server:"ap}
-        apInv.updateStatus(ap_controllers, ap_status, ap_emailFrom, ap_emailTo, ap_emailServer)
+            ap_email = {"from":ap_emailFrom, "to":ap_emailTo, "server":ap_emailServer}
+        apInv.updateStatus(ap_controllers, ap_status, ap_email)
 
     except:
         if debug:
@@ -179,9 +179,6 @@ def updatePhone():
 
 
 if __name__ == "__main__":
-    with open(configPath) as f:
-        config = f.read()
-
     import django
     sys.path.append(os.path.abspath(path))
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "network_inventory.settings")
@@ -195,8 +192,8 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--ups", help="update UPSes", action="store_true")
     parser.add_argument("-p", "--phone", help="update phones", action="store_true")
     args = parser.parse_args()
-    # if args.debug:
-    debug = True
+    if args.debug:
+        debug = True
     if args.accesspoint:
         updateAP()
     if args.apstatus:
