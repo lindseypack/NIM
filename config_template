@@ -1,4 +1,5 @@
 ## Use this file as a template to create network_inventory/config
+## To comment out a line, use a #
 
 ## Django stuff
 DJ_SecretKey =
@@ -23,12 +24,17 @@ AP_Status_OID =
 ## Access point controller IPs:
 AP_ControllerIPs = [ip,ip,...]
 
+## Emails for AP status update. There can be multiple lines for AP_Email_To.
+AP_Email_From =
+AP_Email_To =
+AP_Email_Server =
+
 
 ## Switch login
 Switch_Login = [username,password]
 ## Switch IPs is a list of IPs you want to update. Can be left empty to
 ## update every IP in the database.
-Switch_IPs = [ip,ip,ip,...]
+#Switch_IPs = [ip,ip,ip,...]
 
 
 ## UPS
@@ -37,6 +43,7 @@ APC_Serial_OID =
 APC_Model_OID =
 APC_MAC_OID =
 APC_Name_OID =
+
 ## Liebert OIDs
 Liebert_Serial_OID =
 Liebert_Model_OID =
