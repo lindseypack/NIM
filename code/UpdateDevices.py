@@ -45,14 +45,14 @@ def updateAP():
 
         with open(configPath) as f:
             config = f.read()
-            ap_mac = re.findall(r'AP_MAC_OID = (.+?)\n', config)[0]
-            ap_name = re.findall(r'AP_Name_OID = (.+?)\n', config)[0]
-            ap_ip = re.findall(r'AP_IP_OID = (.+?)\n', config)[0]
-            ap_serial = re.findall(r'AP_Serial_OID = (.+?)\n', config)[0]
-            ap_model = re.findall(r'AP_Model_OID = (.+?)\n', config)[0]
-            ap_status = re.findall(r'AP_Status_OID = (.+?)\n', config)[0]
+            ap_mac = re.findall(r'(?<!#)AP_MAC_OID = (.+?)\n', config)[0]
+            ap_name = re.findall(r'(?<!#)AP_Name_OID = (.+?)\n', config)[0]
+            ap_ip = re.findall(r'(?<!#)AP_IP_OID = (.+?)\n', config)[0]
+            ap_serial = re.findall(r'(?<!#)AP_Serial_OID = (.+?)\n', config)[0]
+            ap_model = re.findall(r'(?<!#)AP_Model_OID = (.+?)\n', config)[0]
+            ap_status = re.findall(r'(?<!#)AP_Status_OID = (.+?)\n', config)[0]
             ap_oids = [ap_mac, ap_name, ap_ip, ap_serial, ap_model, ap_status]
-            ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
+            ap_controllers = re.findall(r'(?<!#)AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
         apInv.updateAccessPoints(path, ap_oids, ap_controllers)
 
     except:
@@ -75,11 +75,11 @@ def updateAPStatus():
 
         with open(configPath) as f:
             config = f.read()
-            ap_status = re.findall(r'AP_Status_OID = (.+?)\n', config)[0]
-            ap_controllers = re.findall(r'AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
-            ap_emailFrom = re.findall(r'AP_Email_From = (.+?)\n', config)[0]
-            ap_emailTo = re.findall(r'AP_Email_To = (.+?)\n', config)
-            ap_emailServer = re.findall(r'AP_Email_Server = (.+?)\n', config)[0]
+            ap_status = re.findall(r'(?<!#)AP_Status_OID = (.+?)\n', config)[0]
+            ap_controllers = re.findall(r'(?<!#)AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
+            ap_emailFrom = re.findall(r'(?<!#)AP_Email_From = (.+?)\n', config)[0]
+            ap_emailTo = re.findall(r'(?<!#)AP_Email_To = (.+?)\n', config)
+            ap_emailServer = re.findall(r'(?<!#)AP_Email_Server = (.+?)\n', config)[0]
             ap_email = {"from":ap_emailFrom, "to":ap_emailTo, "server":ap_emailServer}
         apInv.updateStatus(ap_controllers, ap_status, ap_email)
 
@@ -103,11 +103,11 @@ def updateSwitch(switch_IPs = []):
 
         with open(configPath) as f:
             config = f.read()
-            switch_login = re.findall(r'Switch_Login = \[(.+?)\]', config)[0].split(",")
+            switch_login = re.findall(r'(?<!#)Switch_Login = \[(.+?)\]', config)[0].split(",")
             if len(switch_IPs) == 0:
                 switch_IPs = []
                 try:
-                    switch_IPs = re.findall(r'Switch_IPs = \[(.+?)\]', config)[0].split(",")
+                    switch_IPs = re.findall(r'(?<!#)Switch_IPs = \[(.+?)\]', config)[0].split(",")
                 except:
                     pass
         switchInv.updateSwitches(switch_login, switch_IPs)
@@ -132,15 +132,15 @@ def updateUPS():
 
         with open(configPath) as f:
             config = f.read()
-            apc_serial = re.findall(r'APC_Serial_OID = (.+?)\n', config)[0]
-            apc_model = re.findall(r'APC_Model_OID = (.+?)\n', config)[0]
-            apc_mac = re.findall(r'APC_MAC_OID = (.+?)\n', config)[0]
-            apc_name = re.findall(r'APC_Name_OID = (.+?)\n', config)[0]
+            apc_serial = re.findall(r'(?<!#)APC_Serial_OID = (.+?)\n', config)[0]
+            apc_model = re.findall(r'(?<!#)APC_Model_OID = (.+?)\n', config)[0]
+            apc_mac = re.findall(r'(?<!#)APC_MAC_OID = (.+?)\n', config)[0]
+            apc_name = re.findall(r'(?<!#)APC_Name_OID = (.+?)\n', config)[0]
             apc_oids = [apc_serial, apc_model, apc_mac, apc_name]
-            lie_serial = re.findall(r'Liebert_Serial_OID = (.+?)\n', config)[0]
-            lie_model = re.findall(r'Liebert_Model_OID = (.+?)\n', config)[0]
-            lie_mac = re.findall(r'Liebert_MAC_OID = (.+?)\n', config)[0]
-            lie_mfdate = re.findall(r'Liebert_MfDate_OID = (.+?)\n', config)[0]
+            lie_serial = re.findall(r'(?<!#)Liebert_Serial_OID = (.+?)\n', config)[0]
+            lie_model = re.findall(r'(?<!#)Liebert_Model_OID = (.+?)\n', config)[0]
+            lie_mac = re.findall(r'(?<!#)Liebert_MAC_OID = (.+?)\n', config)[0]
+            lie_mfdate = re.findall(r'(?<!#)Liebert_MfDate_OID = (.+?)\n', config)[0]
             liebert_oids = [lie_serial, lie_model, lie_mac, lie_mfdate]
         upsInv.updateUPS(apc_oids, liebert_oids)
 
@@ -164,7 +164,7 @@ def updatePhone():
 
         with open(configPath) as f:
             config = f.read()
-            phone_login = re.findall(r'Phone_Login = (.+?)\n', config)[0]
+            phone_login = re.findall(r'(?<!#)Phone_Login = (.+?)\n', config)[0]
         phoneInv.updatePhones(path, phone_login)
 
     except:
