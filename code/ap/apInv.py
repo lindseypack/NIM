@@ -50,9 +50,9 @@ def snmpwalk(mac, name, IPs, serialno, model, controllers):
 
 
 #takes a string "com" and runs the command, returning a list of AP names
-def runCom(com):
+def runCommand(com):
     args = shlex.split(com) #separates com into indv. args
-    p = subprocess.Popen(args,stdout=subprocess.PIPE) #runs command, saves stdout
+    p = subprocess.Popen(args, stdout=subprocess.PIPE) #runs command, saves stdout
 
     #communicate() returns a tuple (stdout,stderr)
     #but we only want stdout
@@ -111,8 +111,6 @@ def updateAccessPoints(path, AP_OIDs, controller_IPs):
 
             update_AccessPoint.save()
 
-    updateStatus(controller_IPs, status_oid)
-
 
 ## Get the names of all the access points which are currently up and connected to
 ## a controller. Compare to the names in the database to find the APs that are down.
@@ -126,7 +124,7 @@ def updateStatus(controller_IPs, status_oid, email):
     # which have recovered.
     upAPs = []
     for cmd in AP_command:
-        upAPs.extend(runCom(cmd))
+        upAPs.extend(runCommand(cmd))
     storedAPs = AP.objects.all()
     downAPs = []
     recoveredAPs = []
