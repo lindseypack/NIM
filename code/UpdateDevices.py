@@ -196,6 +196,7 @@ if __name__ == "__main__":
         debug = True
     if args.accesspoint:
         updateAP()
+        updateAPStatus()
     if args.apstatus:
         updateAPStatus()
     if args.switch:
@@ -207,6 +208,7 @@ if __name__ == "__main__":
 
     if not args.apstatus and not args.accesspoint and not args.switch and not args.ups and not args.phone:
         updateAP()
+        updateAPStatus()
         updateSwitch()
         updateUPS()
         updatePhone()
