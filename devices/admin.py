@@ -51,6 +51,7 @@ class SwitchAdmin(admin.ModelAdmin):
         )
     list_display = ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac',
         'uptime', 'stack', 'status', 'lastupdate']
+    list_filter = ['status']
     search_fields = ['name', 'serialno', 'model', 'softwarever', 'ip', 'mac',
         'purchaseyr']
     actions = ['toggle_autoupdate', 'delete_selected']
@@ -78,6 +79,7 @@ class UPSAdmin(admin.ModelAdmin):
         'notes', 'autoupdate']
     list_display = ['name', 'ip', 'mac', 'brand', 'model', 'serialno',
         'autoupdate', 'lastupdate']
+    list_filter = ['brand']
     search_fields = ['name', 'ip', 'mac', 'brand', 'model', 'serialno', 'mfdate']
     actions = ['toggle_autoupdate','delete_selected']
 
