@@ -8,11 +8,10 @@ switches, APC or Liebert UPSes, and phones using VOIP.
 Uses a configuration file for information about device logins, OIDs, IP addresses,
 and so on.
 
-Usage: UpdateDevices.py [-h] [-d] [-a] [-s] [-u] [-p]
+Usage: UpdateDevices.py [-h] [-a] [-e] [-s] [-u] [-p]
 
 Optional arguments:
   -h, --help         show a help message and exit
-  -d, --debug        enable logging on update failure
   -a, --accesspoint  update access points
   -e, --apstatus     update access point status and send notification email
   -s, --switch       update switches
@@ -28,12 +27,11 @@ import re
 import argparse
 import logging
 import datetime
+import deviceconfig as config
 
 path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-configPath = os.path.join(path, "config")
 logPath = os.path.join(path, "log")
 logging.basicConfig(filename=logPath)
-debug = False;
 
 def updateAP():
     """ This function reads necessary information from a config file, then
@@ -42,28 +40,13 @@ def updateAP():
     try:
         from ap import apInv
         print "Updating access points..."
-
-        with open(configPath) as f:
-            config = f.read()
-            ap_mac = re.findall(r'(?<!#)AP_MAC_OID = (.+?)\n', config)[0]
-            ap_name = re.findall(r'(?<!#)AP_Name_OID = (.+?)\n', config)[0]
-            ap_ip = re.findall(r'(?<!#)AP_IP_OID = (.+?)\n', config)[0]
-            ap_serial = re.findall(r'(?<!#)AP_Serial_OID = (.+?)\n', config)[0]
-            ap_model = re.findall(r'(?<!#)AP_Model_OID = (.+?)\n', config)[0]
-            ap_status = re.findall(r'(?<!#)AP_Status_OID = (.+?)\n', config)[0]
-            ap_oids = [ap_mac, ap_name, ap_ip, ap_serial, ap_model, ap_status]
-            ap_controllers = re.findall(r'(?<!#)AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
-        apInv.updateAccessPoints(path, ap_oids, ap_controllers)
-
+        apInv.updateAccessPoints(path, config.AP_OIDs, config.AP_ControllerIPs)
     except:
-        if debug:
-            msg = "========================================================\n"\
-                + str(datetime.datetime.today()) + "\n"\
-                + "Could not update access points:\n\n"
-            logging.exception(msg)
-            print "Could not update access points. See", logPath, "for details."
-        else:
-            print "Could not update access points."
+        msg = "========================================================\n"\
+            + str(datetime.datetime.today()) + "\n"\
+            + "Could not update access points:\n\n"
+        logging.exception(msg)
+        print "Could not update access points. See", logPath, "for details."
 
 def updateAPStatus():
     """ This function reads necessary information from a config file, then
@@ -72,26 +55,14 @@ def updateAPStatus():
     try:
         from ap import apInv
         print "Updating access point status..."
-
-        with open(configPath) as f:
-            config = f.read()
-            ap_status = re.findall(r'(?<!#)AP_Status_OID = (.+?)\n', config)[0]
-            ap_controllers = re.findall(r'(?<!#)AP_ControllerIPs = \[(.+?)\]', config)[0].split(",")
-            ap_emailFrom = re.findall(r'(?<!#)AP_Email_From = (.+?)\n', config)[0]
-            ap_emailTo = re.findall(r'(?<!#)AP_Email_To = (.+?)\n', config)
-            ap_emailServer = re.findall(r'(?<!#)AP_Email_Server = (.+?)\n', config)[0]
-            ap_email = {"from":ap_emailFrom, "to":ap_emailTo, "server":ap_emailServer}
-        apInv.updateStatus(ap_controllers, ap_status, ap_email)
-
+        apInv.updateStatus(config.AP_ControllerIPs, config.AP_Status_OID,
+                           config.AP_Email)
     except:
-        if debug:
-            msg = "========================================================\n"\
-                + str(datetime.datetime.today()) + "\n"\
-                + "Could not update access points:\n\n"
-            logging.exception(msg)
-            print "Could not update access point status. See", logPath, "for details."
-        else:
-            print "Could not update access point status."
+        msg = "========================================================\n"\
+            + str(datetime.datetime.today()) + "\n"\
+            + "Could not update access points:\n\n"
+        logging.exception(msg)
+        print "Could not update access point status. See", logPath, "for details."
 
 def updateSwitch(switch_IPs = []):
     """ This function reads necessary information from a config file, then
@@ -100,27 +71,13 @@ def updateSwitch(switch_IPs = []):
     try:
         from switch import switchInv
         print "Updating switches..."
-
-        with open(configPath) as f:
-            config = f.read()
-            switch_login = re.findall(r'(?<!#)Switch_Login = \[(.+?)\]', config)[0].split(",")
-            if len(switch_IPs) == 0:
-                switch_IPs = []
-                try:
-                    switch_IPs = re.findall(r'(?<!#)Switch_IPs = \[(.+?)\]', config)[0].split(",")
-                except:
-                    pass
-        switchInv.updateSwitches(switch_login, switch_IPs)
-
+        switchInv.updateSwitches(config.Switch_Login, config.Switch_IPs)
     except:
-        if debug:
-            msg = "========================================================\n"\
-                + str(datetime.datetime.today()) + "\n"\
-                + "Could not update switches:\n\n"
-            logging.exception(msg)
-            print "Could not update switches. See", logPath, "for details."
-        else:
-            print "Could not update switches."
+        msg = "========================================================\n"\
+            + str(datetime.datetime.today()) + "\n"\
+            + "Could not update switches:\n\n"
+        logging.exception(msg)
+        print "Could not update switches. See", logPath, "for details."
 
 def updateUPS():
     """ This function reads necessary information from a config file, then
@@ -129,30 +86,13 @@ def updateUPS():
     try:
         from ups import upsInv
         print "Updating UPSes..."
-
-        with open(configPath) as f:
-            config = f.read()
-            apc_serial = re.findall(r'(?<!#)APC_Serial_OID = (.+?)\n', config)[0]
-            apc_model = re.findall(r'(?<!#)APC_Model_OID = (.+?)\n', config)[0]
-            apc_mac = re.findall(r'(?<!#)APC_MAC_OID = (.+?)\n', config)[0]
-            apc_name = re.findall(r'(?<!#)APC_Name_OID = (.+?)\n', config)[0]
-            apc_oids = [apc_serial, apc_model, apc_mac, apc_name]
-            lie_serial = re.findall(r'(?<!#)Liebert_Serial_OID = (.+?)\n', config)[0]
-            lie_model = re.findall(r'(?<!#)Liebert_Model_OID = (.+?)\n', config)[0]
-            lie_mac = re.findall(r'(?<!#)Liebert_MAC_OID = (.+?)\n', config)[0]
-            lie_mfdate = re.findall(r'(?<!#)Liebert_MfDate_OID = (.+?)\n', config)[0]
-            liebert_oids = [lie_serial, lie_model, lie_mac, lie_mfdate]
-        upsInv.updateUPS(apc_oids, liebert_oids)
-
+        upsInv.updateUPS(config.UPS_OIDs)
     except:
-        if debug:
-            msg = "========================================================\n"\
-                + str(datetime.datetime.today()) + "\n"\
-                + "Could not update UPSes:\n\n"
-            logging.exception(msg)
-            print "Could not update UPSes. See", logPath, "for details."
-        else:
-            print "Could not update UPSes."
+        msg = "========================================================\n"\
+            + str(datetime.datetime.today()) + "\n"\
+            + "Could not update UPSes:\n\n"
+        logging.exception(msg)
+        print "Could not update UPSes. See", logPath, "for details."
 
 def updatePhone():
     """ This function reads necessary information from a config file, then
@@ -161,21 +101,13 @@ def updatePhone():
     try:
         from phone import phoneInv
         print "Updating phones..."
-
-        with open(configPath) as f:
-            config = f.read()
-            phone_login = re.findall(r'(?<!#)Phone_Login = (.+?)\n', config)[0]
-        phoneInv.updatePhones(path, phone_login)
-
+        phoneInv.updatePhones(path, config.Phone_Login)
     except:
-        if debug:
-            msg = "========================================================\n"\
-                + str(datetime.datetime.today()) + "\n"\
-                + "Could not update phones:\n\n"
-            logging.exception(msg)
-            print "Could not update phones. See", logPath, "for details."
-        else:
-            print "Could not update phones."
+        msg = "========================================================\n"\
+            + str(datetime.datetime.today()) + "\n"\
+            + "Could not update phones:\n\n"
+        logging.exception(msg)
+        print "Could not update phones. See", logPath, "for details."
 
 
 if __name__ == "__main__":
@@ -185,15 +117,13 @@ if __name__ == "__main__":
     django.setup()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="enable logging on update failure", action="store_true")
     parser.add_argument("-a", "--accesspoint", help="update access points", action="store_true")
-    parser.add_argument("-e", "--apstatus", help="check AP status and send email alerts", action="store_true")
+    parser.add_argument("-e", "--apstatus", help="check AP status and send notification email", action="store_true")
     parser.add_argument("-s", "--switch", help="update switches", action="store_true")
     parser.add_argument("-u", "--ups", help="update UPSes", action="store_true")
     parser.add_argument("-p", "--phone", help="update phones", action="store_true")
     args = parser.parse_args()
-    if args.debug:
-        debug = True
+
     if args.accesspoint:
         updateAP()
         updateAPStatus()
@@ -206,7 +136,8 @@ if __name__ == "__main__":
     if args.phone:
         updatePhone()
 
-    if not args.apstatus and not args.accesspoint and not args.switch and not args.ups and not args.phone:
+    if not args.apstatus and not args.accesspoint and not args.switch \
+            and not args.ups and not args.phone:
         updateAP()
         updateAPStatus()
         updateSwitch()
