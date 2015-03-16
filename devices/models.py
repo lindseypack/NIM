@@ -18,6 +18,7 @@ class Switch(models.Model):
     notes = models.TextField("Notes", default='', blank=True)
     status = models.CharField("Status", max_length=128, default='active', blank=True)
     lastupdate = models.DateTimeField("Last Update", auto_now=True)
+    autoupdate = models.BooleanField("Autoupdate?", default=True)
 
     class Meta:
         verbose_name = "Switch"
@@ -50,6 +51,7 @@ class AP(models.Model):
     ip = models.GenericIPAddressField("IP")
     mac = models.CharField("MAC", max_length=12, default='')
     name = models.CharField("Name", max_length=50, default='')
+    model = models.CharField("Model", max_length=50, default='')
     checkstatus = models.BooleanField("Check Status?", default=True)
     laststatus = models.CharField("Last Status", max_length=32, default='up')
     notes = models.TextField("Notes", default='', blank=True)
@@ -70,7 +72,8 @@ class UPS(models.Model):
     model = models.CharField("Model", max_length=32, default='', blank=True)
     serialno = models.CharField("Serial No", max_length=50, default='', blank=True)
     mfdate = models.CharField("Manufacture Date", max_length=10, default='', blank=True)
-    brand = models.CharField("Brand", max_length=50, default='', blank=True, choices=[('Liebert','Liebert'),('APC','APC')])
+    brand = models.CharField("Brand", max_length=50, default='', blank=True,
+        choices=[('Liebert','Liebert'),('APC','APC'),('LiebertNX', 'Liebert NX')])
     notes = models.TextField("Notes", default='', blank=True)
     autoupdate = models.BooleanField("Autoupdate?", default=True)
     lastupdate = models.DateTimeField("Last Update", auto_now=True)
