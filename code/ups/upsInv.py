@@ -11,40 +11,18 @@ from devices.models import UPS
 ## Do an snmpget using cmdgen from PySNMP to get data about each UPS.
 ## For APCs, return [serialno, model, mac addr, name].
 ## For Lieberts, return [serialno, model, mac addr, manufacture date].
-def snmpget(ip, brand, APC_OIDs, Liebert_OIDs):
+def snmpget(ip, OIDs):
     cmdGen = cmdgen.CommandGenerator()
 
-    if brand == "APC":
-        errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
+    data = dict()
+    for key in OIDs:
+        errorIndication, errorStatus, errorIndication, varBinds = cmdGen.getCmd(
             cmdgen.CommunityData('spa'),
             cmdgen.UdpTransportTarget((ip, 161)),
-            APC_OIDs[0], APC_OIDs[1], APC_OIDs[2], APC_OIDs[3]
-            ## serial, model, mac, name
+            OIDs[key]
         )
-    else:
-        errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
-            cmdgen.CommunityData('spa'),
-            cmdgen.UdpTransportTarget((ip, 161)),
-            Liebert_OIDs[0], Liebert_OIDs[1], Liebert_OIDs[2], Liebert_OIDs[3]
-            ## serial, model, mac, manufacture date
-        )
-
-    vals = list()
-
-    if errorIndication:
-        print(errorIndication)
-    else:
-        if errorStatus:
-            print('%s at %s' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBinds[int(errorIndex)-1] or '?'
-                )
-            )
-        else:
-            for name, val in varBinds:
-                vals.append(val.prettyPrint())
-    vals[2] = vals[2].lstrip('0x').upper()
-    return vals
+        data[key] = varBinds[0][1].prettyPrint()
+    return data
 
 ## Pull IP addresses from file, add them to the database.
 def importIPs(nd_ip, brand):
@@ -67,23 +45,26 @@ def checkValidIP(ip):
 
 ## For each IP in the ups table, update the entry with the serialno,
 ## model, mac addr, name, and mf date (for Liebert UPSes).
-def updateUPS(APC_OIDs, Lie_OIDs):
+# def updateUPS(APC_OIDs, Lie_OIDs):
+def updateUPS(OIDs):
     UPSs = UPS.objects.all()
     for ups in UPSs:
         try:
-            data = snmpget(ups.ip, ups.brand, APC_OIDs, Lie_OIDs)
-            ups.serialno = data[0]
-            ups.model = data[1]
-            ups.mac = data[2]
-            if ups.brand == "APC":
-                ups.name = data[3]
-            else:
+            data = snmpget(ups.ip, OIDs[ups.brand])
+            ups.serialno = data["serial"]
+            ups.model = data["model"]
+            ups.mac = data["mac"].lower()[2:]
+            try:
+                ups.name = data["name"]
+            except:
                 ups.name = socket.getfqdn(ups.ip).rstrip(".centre.edu")
-                ups.mfdate = data[3]
+            try:
+                ups.mfdate = data["mfdate"]
+            except:
+                pass
             ups.save()
         except:
             print "Could not update", ups.ip
-
 
 if __name__ == "__main__":
     # liebert_path = "/local_centre/network_inventory/code/ups/liebert_ip"
