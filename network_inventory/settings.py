@@ -34,7 +34,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 for host in _allowedHosts:
     ALLOWED_HOSTS.append(host.strip())
 
@@ -63,6 +63,8 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'network_inventory.urls'
 
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
+
 WSGI_APPLICATION = 'network_inventory.wsgi.application'
 
 # Database
@@ -83,7 +85,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -91,11 +93,15 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
+STATIC_ROOT = (os.path.join(BASE_DIR, "static"))
+
 STATIC_URL = '/static/'
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
+
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
