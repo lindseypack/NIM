@@ -6,5 +6,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'network_inventory.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
+
+    url(r'^devices/', include('devices.urls', namespace = "devices")),
     url(r'^admin/', include(admin.site.urls)),
 )
