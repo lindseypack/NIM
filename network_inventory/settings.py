@@ -11,23 +11,11 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import re
+import secretSettings as secret
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
-def _getSecretSettings():
-    with open(os.path.join(BASE_DIR, "config")) as f:
-        _config = f.read()
-        _user = re.findall(r'DB_User = (.+?)\n', _config)[0].strip()
-        _pw = re.findall(r'DB_Password = (.+?)\n', _config)[0].strip()
-        _host = re.findall(r'DB_Host = (.+?)\n', _config)[0].strip()
-        _secretKey = re.findall(r'DJ_SecretKey = (.+?)\n', _config)[0].strip()
-        _allowedHosts = re.findall(r'DJ_Host = (.+?)\n', _config)
-        return _secretKey, _allowedHosts, (_user, _pw, _host)
-
-_secretKey, _allowedHosts, _DBInfo  = _getSecretSettings()
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = _secretKey
+SECRET_KEY = secret.DJ_SecretKey
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -35,8 +23,7 @@ DEBUG = False
 TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-for host in _allowedHosts:
-    ALLOWED_HOSTS.append(host.strip())
+# ALLOWED_HOSTS = secret.DJ_Hosts
 
 # Application definition
 
@@ -74,9 +61,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'network_inventory',
-        'USER': _DBInfo[0],
-        'PASSWORD': _DBInfo[1],
-        'HOST': _DBInfo[2],
+        'USER': secret.DB_User,
+        'PASSWORD': secret.DB_Password,
+        'HOST': secret.DB_Host,
     }
 }
 
