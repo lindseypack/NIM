@@ -14,9 +14,10 @@ def toggle_autoupdate(modeladmin, request, queryset):
         obj.save()
 toggle_autoupdate.short_description = "Toggle auto-update"
 
+
 class APAdmin(admin.ModelAdmin):
     readonly_fields = ('name', 'serialno', 'ip', 'mac', 'laststatus')
-    fields = ['name', 'serialno', 'ip', 'mac', 'laststatus','checkstatus',
+    fields = ['name', 'serialno', 'ip', 'mac', 'model', 'laststatus','checkstatus',
         'autoupdate', 'notes']
     list_display = ('name', 'serialno', 'ip', 'mac', 'laststatus', 'lastupdate',
         'checkstatus', 'autoupdate')
@@ -42,15 +43,16 @@ class SwitchAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac',
-            'uptime', 'stack', 'purchaseyr', 'purchaseorder', 'status', 'notes']
+            'uptime', 'stack', 'purchaseyr', 'purchaseorder', 'status', 'notes',
+            'autoupdate']
         }),
         ('Uplinks', {
             'classes': ('collapse',),
             'fields': ( 'uplink1', 'uplink2', 'uplink3', 'uplink4')
         }),
         )
-    list_display = ['name', 'serialno', 'model', 'ip', 'softwarever', 'mac',
-        'uptime', 'stack', 'status', 'lastupdate']
+    list_display = ['ip', 'serialno', 'model', 'name', 'softwarever', 'mac',
+        'uptime', 'stack', 'status', 'lastupdate', 'autoupdate']
     list_filter = ['status']
     search_fields = ['name', 'serialno', 'model', 'softwarever', 'ip', 'mac',
         'purchaseyr']
@@ -63,6 +65,12 @@ class SwitchAdmin(admin.ModelAdmin):
             UpdateDevices.updateSwitch([obj.ip])
         except:
             pass
+
+    def toggle_autoupdate(modeladmin, request, queryset):
+        for obj in queryset:
+            obj.autoupdate = not obj.autoupdate
+            obj.save()
+        toggle_autoupdate.short_description = "Toggle auto-update"
 
 
 class PhoneAdmin(admin.ModelAdmin):
@@ -92,10 +100,7 @@ class UPSAdmin(admin.ModelAdmin):
             pass
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ['name', 'mac', 'model', 'serialno', 'brand']
-        else:
-            return ['name', 'mac', 'model', 'serialno']
+        return ['name', 'mac', 'model', 'serialno']
 
 admin.site.register(AP, APAdmin)
 admin.site.register(UPS, UPSAdmin)
