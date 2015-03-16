@@ -40,25 +40,32 @@ def lookup(IPs):
             print "dns lookup failed on", addr
     return addrBook
 
+def showVer(ip, login):
+    acct = Account(login[0], login[1])
+    conn = SSH2()
+    conn.connect(ip)
+    conn.set_driver('ios')
+    conn.authenticate(acct)  # Authenticate on the remote host
+    conn.execute('terminal length 0')   # Set terminal length
+    conn.execute('show ver')
+    response = repr(conn.response)
+    conn.send('exit\r')     # Send the "exit" command
+    conn.close()
+    return response
+
 ## use ssh or telnet to run the "show ver" command on every switch.
 ## return the data as a dictionary: {'ip':'show ver result', ...}
-def showVersion(IPs, login):
+def getShowVerData(IPs, login):
     acct = Account(login[0], login[1])
     showver = dict()
-    for ip in IPs:
-        try:
-            conn = SSH2()
-            conn.connect(ip)
-            conn.set_driver('ios')
-            conn.authenticate(acct)  # Authenticate on the remote host
-            conn.execute('terminal length 0')   # Set terminal length
-            conn.execute('show ver')
-            showver[ip] = repr(conn.response)
-            conn.send('exit\r')     # Send the "exit" command
-            conn.close()
-        except:  ## connection timed out
-            print "failed on", ip
-            pass
+    for i in range(4):
+        failed = []
+        for ip in IPs:
+            try:
+                showver[ip] = showVer(ip, login)
+            except:
+                failed.append(ip)
+        IPs = failed
     return showver
 
 ## extract useful info from the showver data using regular expressions.
@@ -66,7 +73,7 @@ def showVersion(IPs, login):
 ## and a list of ip addresses that failed the REs.
 def parseShowVer(showver):
     addrBook = lookup(showver)  ## use to get names for each switch
-    switches = list() ## format: ([serialno, ip, name, mac, model, swVer, uptime, stack, purchaseyr])
+    switches = list()
     failed = list()  ## need to know if regexes fail for a given switch - this shouldn't happen
 
     ## REs
@@ -101,8 +108,17 @@ def parseShowVer(showver):
                         mac = re.findall(r'Switch 0' + str(i) + r'.+?Base ethernet MAC Address\s*: (.+?)\\r\\n', data)[0]
                         serial = re.findall(r'Switch 0' + str(i) + r'.+?System serial number\s*: (.+?)\\r\\n', data)[0]
                     purchaseyr = int(serial[3:5]) + 1996
-                    switches.append((serial, ip, name.rstrip('.centre.edu'),
-                        mac.replace(":", ""), model, swVer, uptime, i, purchaseyr))
+                    switches.append({
+                        "serial": serial,
+                        "ip": ip,
+                        "name": name.rstrip('.centre.edu'),
+                        "mac": mac.replace(":", "").lower(),
+                        "model": model,
+                        "swver": swVer,
+                        "uptime": uptime,
+                        "stack": i,
+                        "purchaseyr": purchaseyr,
+                    })
 
             else:  ## switch
                 swVer = swVerRE.findall(data)[0].strip()
@@ -111,8 +127,19 @@ def parseShowVer(showver):
                 model = modelRE.findall(data)[0].strip()
                 serial = serialRE.findall(data)[0].strip()
                 purchaseyr = int(serial[3:5]) + 1996
-                switches.append((serial, ip, name.rstrip('.centre.edu'),
-                    mac.replace(":", ""), model, swVer, uptime, 0, purchaseyr))
+                # switches.append((serial, ip, name.rstrip('.centre.edu'),
+                #     mac.replace(":", ""), model, swVer, uptime, 0, purchaseyr))
+                switches.append({
+                    "serial": serial,
+                    "ip": ip,
+                    "name": name.rstrip('.centre.edu'),
+                    "mac": mac.replace(":", "").lower(),
+                    "model": model,
+                    "swver": swVer,
+                    "uptime": uptime,
+                    "stack": 0,
+                    "purchaseyr": purchaseyr,
+                })
         except:
             failed.append(ip)
 
@@ -123,69 +150,59 @@ def parseShowVer(showver):
 ## in the db, the switch in the db has been replaced and its info should be
 ## updated to reflect this.
 def checkReplaced(switches):
-    newSwitches = [(switch[0], switch[1]) for switch in switches]  ## serialno, ip
-    oldSwitchObjs = Switch.objects.exclude(ip='0.0.0.0')
-    oldSwitches = [(switch.serialno.encode('ascii', 'ignore'),
-                    switch.ip.encode('ascii', 'ignore')) for switch in oldSwitchObjs]
+    newSwitches = [switch["serial"] for switch in switches]  ## serialno, ip
+    oldSwitchObjs = Switch.objects.exclude(ip='0.0.0.0').exclude(autoupdate=False)
+    oldSwitches = [switch.serialno.encode('ascii', 'ignore') for switch in oldSwitchObjs]
     replaced =  list()
     for old in oldSwitches:
-        if (old[0] != "") and (old not in newSwitches):
+        if (old != "") and (old not in newSwitches):
             replaced.append(old)
     return replaced
 
-
 ## extract specific info from showver data for each IP address in the table
 def updateSwitches(switchlogin, IPs = []):
+    # importIPs('/local_centre/NIM/code/switch/switch_ip')
+
     if (IPs == []):
         ## get IPs from db
-        switchObjs = Switch.objects.exclude(ip='0.0.0.0')
+        switchObjs = Switch.objects.exclude(ip='0.0.0.0').exclude(autoupdate=False)
         IPs = [switch.ip for switch in switchObjs]
 
     ## get & parse info about each switch
-    showver = showVersion(IPs, switchlogin)
+    showver = getShowVerData(IPs, switchlogin)
     switches, failed = parseShowVer(showver)
-    ## switches format: ([serialno, ip, name, mac, model, swVer, uptime, stack, purchaseyr])
-    ## failed format: [ip,...]
 
     if len(failed) > 0:
         print "Could not parse show ver data for these switches: ", failed
 
     if len(IPs) > 1:
-        replaced = checkReplaced(switches)
-        ## replaced format: [(serialno, ip),...]
+        replaced = checkReplaced(switches)  # list of serials
 
         for r in replaced:
-            try:
-                switch = Switch.objects.get(serialno=r[0])
-                switch.ip = '0.0.0.0'
-                switch.status = 'inactive'
-                switch.uptime = ''
-                switch.save()
-            except:
-                print "error in replacing: ", r
+            switch = Switch.objects.get(serialno=r)
+            switch.ip = '0.0.0.0'
+            switch.status = 'inactive'
+            switch.uptime = ''
+            switch.save()
 
     for s in switches:
         switch = Switch()
         try:
-            switch = Switch.objects.get(serialno = s[0])
+            switch = Switch.objects.get(serialno = s["serial"])
         except:
             try:
-                switch = Switch.objects.get(ip = s[1])
-                switch.serialno = s[0]
+                switch = Switch.objects.get(ip = s["ip"])
+                switch.serialno = s["serial"]
             except:
-                switch.serialno = s[0]
+                switch.serialno = s["serial"]
 
-        switch.ip = s[1]
-        switch.name = s[2]
-        switch.mac = s[3]
-        switch.model = s[4]
-        switch.softwarever = s[5]
-        switch.uptime = s[6]
-        switch.stack = s[7]
-        switch.purchaseyr = s[8]
+        switch.ip = s["ip"]
+        switch.name = s["name"]
+        switch.mac = s["mac"]
+        switch.model = s["model"]
+        switch.softwarever = s["swver"]
+        switch.uptime = s["uptime"]
+        switch.stack = s["stack"]
+        switch.purchaseyr = s["purchaseyr"]
         switch.status = 'active'
         switch.save()
-
-
-if __name__ == "__main__":
-    updateSwitches()
