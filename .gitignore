@@ -1,7 +1,5 @@
 *.pyc
 *_ip
-tests.py
-views.py
 log
 *config.py
 gunicorn.config
