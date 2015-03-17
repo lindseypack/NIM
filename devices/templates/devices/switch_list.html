@@ -1,0 +1,25 @@
+{% extends "devices/list_base.html" %}
+
+
+{% block extraCols %}
+    <th scope="col"> {% anchor serialno "Serial Number" %} </th>
+    <th scope="col"> {% anchor ip "IP Address" %}</th>
+    <th scope="col"> {% anchor name "Name" %} </th>
+    <th scope="col"> {% anchor mac "MAC Address" %} </th>
+    <th scope="col"> {% anchor model "Model" %} </th>
+    <th scope="col"> {% anchor stack "Stack" %} </th>
+    <th scope="col"> {% anchor status "Status" %} </th>
+
+{% endblock %}
+
+{% block rowDisplay %}
+    <tr>
+    <td><a href="#">{{object.serialno}}</a></td>
+    <td><a href="#">{{object.ip}}</a></td>
+    <td><a href="#">{{object.name}}</a></td>
+    <td><a href="#">{{object.mac}}</a></td>
+    <td><a href="#">{{object.model}}</a></td>
+    <td><a href="#">{{object.stack}}</a></td>
+    <td><a href="#">{{object.status}}</a></td>
+	</tr>
+{% endblock %}

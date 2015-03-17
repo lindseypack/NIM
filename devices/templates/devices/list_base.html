@@ -1,0 +1,85 @@
+<!--This is the html file that hold the template for list display-->
+
+
+{% load staticfiles %}
+<link href="{% static 'devices/template-css.css' %}" rel="stylesheet" type="text/css">
+
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Devices</title>
+
+</head>
+
+<!--body background="https://centrenet.centre.edu/ICS/clientconfig/HtmlContent/images/background.png"-->
+<body>
+
+<div id="masthead"><a href="/devices/switches/"><img src="http://www.centre.edu/wp-content/uploads/2015/03/CC_logo_horizontal_nomark.png" width="299" height="34" alt=""/></a>
+</div>
+<div id="headerTabs"><ul><li><a href="/devices/switches/">Inventory</a></li><li><a href="#">LINK 2</a></li><li><a href="#" >LINK 3</a></li></ul></div>
+<div id="headerTabs2"><ul><li><a href="/devices/switches/">Swithes</a></li><li><a href="/devices/phones/">Phone</a></li><li><a href="/devices/AP/" >AP</a></li><li><a href="/devices/UPS/">UPS</a></li></ul> </div>
+<div id="mainLayout" class="container">
+
+{% load pagination_tags %}
+{% load sorting_tags %}
+
+{% block body %}
+	<div class="grid_16">
+	<h3 class="center">{{tableTitle}}</h3>
+	<div class="container_16">
+  {% autosort objects %}
+  {% autopaginate objects 100 %}
+  
+
+  <table id="hardwareList" class="center">
+
+  <thead>
+    <tr>
+        {% block extraCols %} {% endblock %}
+    </tr>
+  </thead>
+
+  <tbody>
+
+  {% for object in objects %}
+
+      {% block rowDisplay %}
+      {% endblock %}
+
+  {% endfor %}
+
+  </tbody>
+  </table>
+
+  <div class="pagination">
+  {% paginate %}
+  </div>
+
+
+  {% block buttons %}{% endblock %}
+</div></div>
+{% endblock %}
+
+
+	
+
+<div id="round1"><a href="#">BUTTON &raquo;</a></div>
+
+<div id="round2"><a href="#">BUTTON &raquo;</a></div>
+
+<div id="divider">&nbsp;</div>
+
+<div id="form-container"><form><input type="text">
+<input type="email">
+<textarea></textarea>
+<input type="submit">
+
+</form>
+</div>
+
+</div>
+<div id="bottom-round">&nbsp;</div>
+
+</body>
+</html>

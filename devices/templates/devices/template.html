@@ -1,0 +1,163 @@
+<!--This is the html file that displays different devices-->
+
+
+{% load staticfiles %}
+<link href="{% static 'devices/template-css.css' %}" rel="stylesheet" type="text/css">
+
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Devices</title>
+
+</head>
+
+<!--body background="https://centrenet.centre.edu/ICS/clientconfig/HtmlContent/images/background.png"-->
+<body>
+
+<div id="masthead"><a href="/devices/switches/"><img src="http://www.centre.edu/wp-content/uploads/2015/03/CC_logo_horizontal_nomark.png" width="299" height="34" alt=""/></a>
+</div>
+<div id="headerTabs"><ul><li><a href="/devices/switches/">Inventory</a></li><li><a href="#">LINK 2</a></li><li><a href="#" >LINK 3</a></li></ul></div>
+<div id="headerTabs2"><ul><li><a href="/devices/switches/">Swithes</a></li><li><a href="/devices/phones/">Phone</a></li><li><a href="/devices/AP/" >AP</a></li><li><a href="/devices/UPS/">UPS</a></li></ul> </div>
+<div id="mainLayout" class="container">
+
+
+	{% if model == "switches" %}
+
+	<table>
+		<tr>
+		<th>Serial No.</th>
+		<th>IP</th>
+		<th>Name</th>
+		<th>MAC</th>
+		<th>Model</th>
+		<th>Stack</th>
+		<th>Status</th>
+		</tr>
+
+
+		{% for switch in objects %}
+		<tr>
+			<td>{{switch.serialno}}</td>
+			<td>{{switch.ip}}</td>
+			<td>{{switch.name}}</td>
+			<td>{{switch.mac}}</td>
+			<td>{{switch.model}}</td>
+			<td>{{switch.stack}}</td>
+			<td>{{switch.status}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+
+
+	{% if model == "phones" %}
+
+	<table>
+		<tr>
+		<th>Name</th>
+		<th>IP</th>
+		<th>MAC</th>
+		<th>DID</th>
+		<th>Model</th>
+		<th>Serial No.</th>
+		<th>Status</th>
+		<th>Notes</th>
+		</tr>
+
+
+		{% for phone in objects %}
+		<tr>
+			<td>{{phone.name}}</td>
+			<td>{{phone.ip}}</td>
+			<td>{{phone.mac}}</td>
+			<td>{{phone.did}}</td>
+			<td>{{phone.model}}</td>
+			<td>{{phone.serialno}}</td>
+			<td>{{phone.status}}</td>
+			<td>{{phone.notes}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+
+
+
+	{% if model == "AP" %}
+
+	<table>
+		<tr>
+		<th>Serial No.</th>
+		<th>IP</th>
+		<th>MAC</th>
+		<th>Name</th>
+		<th>Model</th>
+		<th>Last Status</th>
+		<th>Notes</th>
+		</tr>
+
+
+		{% for ap in objects %}
+		<tr>
+			<td>{{ap.serialno}}</td>
+			<td>{{ap.ip}}</td>
+			<td>{{ap.mac}}</td>
+			<td>{{ap.name}}</td>
+			<td>{{ap.model}}</td>
+			<td>{{ap.laststatus}}</td>
+			<td>{{ap.notes}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+
+	{% if model == "UPS" %}
+
+	<table>
+		<tr>
+		<th>IP</th>
+		<th>Name</th>
+		<th>MAC</th>
+		<th>Model</th>
+		<th>Serial No.</th>
+		<th>Manufacture Date</th>
+		<th>Brand</th>
+		<th>Notes</th>
+		</tr>
+
+
+		{% for ups in objects %}
+		<tr>
+			<td>{{ups.ip}}</td>
+			<td>{{ups.name}}</td>
+			<td>{{ups.mac}}</td>
+			<td>{{ups.model}}</td>
+			<td>{{ups.serialno}}</td>
+			<td>{{ups.mfdate}}
+			<td>{{ups.brand}}</td>
+			<td>{{ups.notes}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+	
+
+<div id="round1"><a href="#">BUTTON &raquo;</a></div>
+
+<div id="round2"><a href="#">BUTTON &raquo;</a></div>
+
+<div id="divider">&nbsp;</div>
+
+<div id="form-container"><form><input type="text">
+<input type="email">
+<textarea></textarea>
+<input type="submit">
+
+</form>
+</div>
+
+</div>
+<div id="bottom-round">&nbsp;</div>
+
+</body>
+</html>
