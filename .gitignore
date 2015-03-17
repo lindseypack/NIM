@@ -5,4 +5,5 @@ views.py
 log
 *config.py
 gunicorn.config
+secretSettings.py
 
